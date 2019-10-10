@@ -48,10 +48,8 @@ class Graph:
         return self.weights[(v, u)]
 
     def dijkstras(self, source):
-        """ Shortest paths algorithm using a set """
+        dist, prev = dict(), dict()
         Q = set()
-        dist = dict()
-        prev = dict()
 
         for v in self.graph:
             dist[v] = float("inf")
@@ -80,16 +78,12 @@ class Graph:
         s = [u] + s
         return [s, d[s[-1]]]
 
-    def is_connected(self,
-                     vertices_encountered = None,
-                     start_vertex=None):
-        """ determines if the graph is connected """
+    def is_connected(self, vertices_encountered = None, start_vertex=None):
         if vertices_encountered is None:
             vertices_encountered = set()
         gdict = self.graph
-        vertices = list(gdict.keys()) # "list" necessary in Python 3
+        vertices = list(gdict.keys())
         if not start_vertex:
-            # chosse a vertex from graph as a starting point
             start_vertex = vertices[0]
         vertices_encountered.add(start_vertex)
         if len(vertices_encountered) != len(vertices):

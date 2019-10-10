@@ -13,7 +13,6 @@ if __name__ == '__main__':
 
     for idx in range(num_test_iterations):
         obj = Generator(idx=idx + 1)
-        data = obj.data_loader()
         obj.data_generator()
         obj.topology_generator()
 

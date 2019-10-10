@@ -131,7 +131,7 @@ class Generator:
                     map(str, destination_weight)).replace(',', ' ')
                 f.write(f'{station} {destination_weight}\n')
 
-    def data_loader(self, type: str = 'bike_data'):
+    def data_loader(self, type='bike_data'):
         count = 0
         data_path = self.bike_path if type == 'bike_data' else self.topology_path
         edges = []
