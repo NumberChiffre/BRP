@@ -9,3 +9,4 @@
 `pip3 install -r requirements.txt`
 
 `python3.6 main.py`
+
