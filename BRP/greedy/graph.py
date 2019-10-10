@@ -52,7 +52,6 @@ class Graph:
         Q = set()
         dist = dict()
         prev = dict()
-        paths = dict()
 
         for v in self.graph:
             dist[v] = float("inf")
@@ -64,14 +63,11 @@ class Graph:
             u = self.findMin(Q, dist)
             Q.remove(u)
             neighbor = self.getNeighbors(u)
-            path = []
             for i in neighbor:
                 alt = dist[u] + self.getEdgeWeight(u, i)
                 if alt < dist[i]:
                     dist[i] = alt
                     prev[i] = u
-                    path.append(i)
-            paths[u] = path
         return (dist, prev)
 
     def shortestPath(self, source, target):
@@ -82,81 +78,7 @@ class Graph:
             s = [u] + s
             u = p[u]
         s = [u] + s
-        return s
-
-    """A recursive function to print all paths from 'u' to 'd'.
-    visited[] keeps track of vertices in current path.
-    path[] stores actual vertices and path_index is current
-    index in path[]"""
-    def printAllPathsUtil(self, u, d, visited, path, edge_weight=0):
-
-        # Mark the current node as visited and store in path
-        visited[u] = True
-        path.append((u, edge_weight))
-
-        # If current vertex is same as destination, then print
-        # current path[]
-        if u == d:
-            if sum([1 for x in path if 'b' in x[0]]) >= 4 and sum([x[1] for x in path]) <= 8*60/2:
-                print(path, sum([x[1] for x in path]))
-                self.paths.append(path)
-        else:
-            # If current vertex is not destination
-            # Recur for all the vertices adjacent to this vertex
-            for i in self.graph[u]:
-                if not visited[i]:
-                    edge_weight = self.weights[(u, i)]
-                    self.printAllPathsUtil(i, d, visited, path, edge_weight)
-
-        # Remove current vertex from path[] and mark it as unvisited
-        path.pop()
-        visited[u] = False
-
-    # Prints all paths from 's' to 'd'
-    def printAllPaths(self, s, d):
-
-        # Mark all the vertices as not visited
-        visited = dict(zip(self.graph.keys(), [False] * len(self.graph)))
-
-        # Create an array to store paths
-        self.paths = []
-        self.idx = 0
-        path = []
-
-        # Call the recursive helper function to print all paths
-        self.printAllPathsUtil(s, d, visited, path)
-        return self.paths
-
-
-    def paths(self, v):
-        """Generate the maximal cycle-free paths in graph starting at v.
-        graph must be a mapping from vertices to collections of
-        neighbouring vertices.
-
-        >>> g = {1: [2, 3], 2: [3, 4], 3: [1], 4: []}
-        >>> sorted(paths(g, 1))
-        [[1, 2, 3], [1, 2, 4], [1, 3]]
-        >>> sorted(paths(g, 3))
-        [[3, 1, 2, 4]]
-
-        """
-        path = [v]  # path traversed so far
-        seen = {v}  # set of vertices in path
-
-        def search():
-            dead_end = True
-            for neighbour in self.graph[path[-1]]:
-                if neighbour not in seen:
-                    dead_end = False
-                    seen.add(neighbour)
-                    path.append(neighbour)
-                    yield from search()
-                    path.pop()
-                    seen.remove(neighbour)
-            if dead_end:
-                yield list(path)
-
-        yield from search()
+        return [s, d[s[-1]]]
 
     def is_connected(self,
                      vertices_encountered = None,
