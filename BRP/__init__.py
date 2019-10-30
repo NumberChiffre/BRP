@@ -22,9 +22,9 @@ vehicle_shift = 8 * 60  # in minutes
 num_vertices = num_bike_stations + num_street_intersections
 
 # params given for part II
-num_intersections_i = 11
-num_intersections_j = 13
-num_bike_stations_2 = 90
+num_intersections_i = 11 #11
+num_intersections_j = 13 #13
+num_bike_stations_2 = 90 #90
 single_arc_prop = 0.4
 deficit_prop = 0.5
 
