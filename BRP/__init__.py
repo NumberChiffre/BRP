@@ -2,7 +2,7 @@ import os
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 num_test_iterations = 10
-lower_edge_weight, upper_edge_weight = 30, 40
+lower_edge_weight, upper_edge_weight = 10, 20
 
 # params given for part I
 num_bike_stations = 10
@@ -20,3 +20,11 @@ vehicle_shift = 8 * 60  # in minutes
 
 # bikes + intersections + at_depot, where deposit is the 0th index
 num_vertices = num_bike_stations + num_street_intersections
+
+# params given for part II
+num_intersections_i = 11
+num_intersections_j = 13
+num_bike_stations_2 = 90
+single_arc_prop = 0.4
+deficit_prop = 0.5
+

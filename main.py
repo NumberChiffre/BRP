@@ -1,5 +1,5 @@
 from BRP import *
-from BRP.greedy.data_generator import Generator
+from BRP.greedy.data_generator import DataGenerator
 from BRP.greedy.greedy import GreedyTraversal
 import pandas as pd
 import numpy as np
@@ -12,7 +12,7 @@ if __name__ == '__main__':
         index=[x for x in range(1, num_test_iterations + 1)])
 
     for idx in range(num_test_iterations):
-        obj = Generator(idx=idx + 1)
+        obj = DataGenerator(idx=idx + 1)
         obj.data_generator()
         obj.topology_generator()
 

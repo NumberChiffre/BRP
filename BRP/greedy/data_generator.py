@@ -1,18 +1,15 @@
-from collections import OrderedDict
 import numpy as np
 import random
 
 import BRP
 from BRP import *
 from BRP.greedy.graph import Graph
+from BRP.greedy.generator import Generator
 
 
-class Generator:
+class DataGenerator(Generator):
     def __init__(self, idx=1):
-        self.idx = idx
-        self.bike_path = f'{ROOT_DIR}/sample_data/bike_data.txt'
-        self.topology_path = f'{ROOT_DIR}/sample_data/topology.txt'
-        self.bike_data = OrderedDict()
+        super().__init__(idx)
 
     def data_generator(self):
         """generate a list of random durations, s.t each vehicle can visit
