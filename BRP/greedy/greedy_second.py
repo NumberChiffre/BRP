@@ -1,6 +1,6 @@
 from BRP import *
 import BRP
-
+import copy
 
 class GreedyTraversalSecond:
     def __init__(self, graph, bike_data):
@@ -34,17 +34,21 @@ class GreedyTraversalSecond:
         for k, v in min_depot_bike_stations.items():
             if k[1] != main_source:
                 min_depot_bike_stations[k] = v + [
-                    self.bike_data['bike_data'][int(k[1].replace('b', '')) - 1][1]]
+                    self.bike_data['bike_data'][int(k[1].replace('b', '')) - 1][
+                        1]]
             else:
                 min_depot_bike_stations[k] = v + [0]
 
         # choose the min or choose randomly
         above_thresh_b = dict(
             [(k, v) for k, v in min_depot_bike_stations.items() if
-             v[-1] > min_station_bikes and k[0] == 'at_depot'])
+             v[-1] >= min_station_bikes and k[0] == 'at_depot'])
         below_thresh_b = dict(
             [(k, v) for k, v in min_depot_bike_stations.items() if
-             v[-1] <= min_station_bikes and k[0] == 'at_depot'])
+             v[-1] < min_station_bikes and k[0] == 'at_depot'])
+
+        # deficit stations static
+        below_thresh_b = copy.deepcopy(below_thresh_b)
 
         # keep going till all deficit stations get min_station_bikes
         while sum([1 for v in below_thresh_b.values() if
@@ -62,11 +66,28 @@ class GreedyTraversalSecond:
             # for each vehicle, fill bikes until max cap
             # start from the closest to depot, then closest to bike station
             while vehicles[f'v{idx}'][1] < max_station_bikes:
-            # for v in above_thresh_b.values():
-                if v[-1] > min_station_bikes and vehicles[f'v{idx}'][
-                    1] < max_station_bikes:
+                lel = dict([(k, v) for k, v in above_thresh_b.items() if
+                            v[-1] <= min_station_bikes])
+
+                # find neighbors out of the non-deficits take the closest
+                if source == main_source:
+                    for k, val in above_thresh_b.items():
+                        if val[-1] > min_station_bikes:
+                            v = above_thresh_b[k]
+                            break
+                else:
+                    neighbors = dict(
+                        [(k, v) for k, v in min_depot_bike_stations.items() if
+                         v[-1] >= min_station_bikes and k[0] == source])
+
+                    for k, val in neighbors.items():
+                        if val[-1] > min_station_bikes:
+                            v = neighbors[k]
+                            break
+
+                if v[-1] > min_station_bikes:
                     # find the shortest node from source to the remaining stations
-                    source_to_v = stp[(source, v[0][-1])] + \
+                    source_to_v = min_depot_bike_stations[(source, v[0][-1])] + \
                                   [self.bike_data['bike_data'][
                                        int(v[0][-1].replace('b', '')) - 1][1]]
                     vehicles[f'v{idx}'].append(source_to_v)
@@ -75,6 +96,7 @@ class GreedyTraversalSecond:
                     bikes = min(v[-1] - min_station_bikes,
                                 max_station_bikes - vehicles[f'v{idx}'][1])
                     vehicles[f'v{idx}'][1] += bikes
+                    # min_depot_bike_stations[(source, v[0][-1])][-1] -= bikes
                     above_thresh_b[(main_source, v[0][-1])][-1] -= bikes
 
                     # path weights
@@ -82,17 +104,25 @@ class GreedyTraversalSecond:
                     source = v[0][-1]
                     num_stations_visited += 1
 
-                # vehicle has reached max capacity, moving on to other deficit stations
-                if vehicles[f'v{idx}'][1] == max_station_bikes:
-                    break
-
             # once vehicle reached full capacity, go fill bikes
             num_stations_satisfied = 0
-            for v in below_thresh_b.values():
+            while vehicles[f'v{idx}'][1] > 0:
+                avoid = [k[1] for k, v in below_thresh_b.items() if
+                         v[-1] >= min_station_bikes]
+                neighbors = dict(
+                    [(k, v) for k, v in min_depot_bike_stations.items() if
+                     v[-1] < min_station_bikes and k[0] == source and k[1]
+                     not in avoid])
+
+                for k, val in neighbors.items():
+                    if val[2] < min_station_bikes and k[1] != main_source:
+                        v = neighbors[k]
+                        break
+
                 if source != v[0][-1] and v[-1] < min_station_bikes and \
                         vehicles[f'v{idx}'][1] > 0:
-                    source_to_v = stp[(source, v[0][-1])]
-                    v_to_main = stp[(v[0][-1], main_source)]
+                    source_to_v = min_depot_bike_stations[(source, v[0][-1])]
+                    v_to_main = min_depot_bike_stations[(v[0][-1], main_source)]
 
                     # get shortest path from u->v, v->depot
                     # choose u->depot if not enough time
@@ -107,6 +137,8 @@ class GreedyTraversalSecond:
                         bikes = min(min_station_bikes - v[-1],
                                     vehicles[f'v{idx}'][1])
                         vehicles[f'v{idx}'][1] -= bikes
+                        # min_depot_bike_stations[(main_source, v[0][-1])][
+                        #     -1] += bikes
                         below_thresh_b[(main_source, v[0][-1])][-1] += bikes
                         if below_thresh_b[(main_source, v[0][-1])][
                             -1] >= min_station_bikes:
@@ -116,13 +148,20 @@ class GreedyTraversalSecond:
                         vehicles[f'v{idx}'][0] += source_to_v[1]
                         source = v[0][-1]
                         num_stations_visited += 1
+
+                        troll = dict(
+                            [(k, v) for k, v in below_thresh_b.items() if
+                             v[-1] >= min_station_bikes])
+                        if sum([1 for k, v in troll.items() if
+                                v[-1] > min_station_bikes]):
+                            troll
                     else:
                         break
 
             # done with deficit stations and have enough time to go back
             if source != main_source:
-                source_to_v = self.graph.shortestPath(source,
-                                                      main_source) + [0]
+                source_to_v = min_depot_bike_stations[(source, main_source)] + [
+                    0]
                 vehicles[f'v{idx}'][0] += source_to_v[1]
                 vehicles[f'v{idx}'].append(source_to_v)
                 vehicles[f'v{idx}'].append(num_stations_visited)
