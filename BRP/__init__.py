@@ -2,7 +2,7 @@ import os
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 num_test_iterations = 10
-lower_edge_weight, upper_edge_weight = 10, 20
+lower_edge_weight, upper_edge_weight = 1, 10
 
 # params given for part I
 num_bike_stations = 10

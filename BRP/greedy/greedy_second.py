@@ -2,7 +2,7 @@ from BRP import *
 import BRP
 
 
-class GreedyTraversal:
+class GreedyTraversalSecond:
     def __init__(self, graph, bike_data):
         self.graph = graph
         self.bike_data = bike_data
@@ -14,18 +14,29 @@ class GreedyTraversal:
                             [[0, 0] for _ in range(num_vehicles)]))
         idx = 1
         main_source, source = 'at_depot', 'at_depot'
-        stp = {}
+        dist_prev, stp = {}, {}
 
         # distance from each bike station to each other with depot
+        # O(B*(|E|+|V|)*log(|V|)
         bike_stations = [x for x in self.bike_data['vertices'] if 'b' in x]
-        for b in bike_stations:
-            stp[(main_source, b)] = self.graph.shortestPath(main_source, b)
+        for source in list(bike_stations + [main_source]):
+            (dist, prev) = self.graph.dijkstras(source)
+            dist_prev[source] = (dist, prev)
+            for b in list(bike_stations + [main_source]):
+                if source != b:
+                    stp[(source, b)] = self.graph.getShortestPath(
+                        dist_prev[source][0], dist_prev[source][1], b)
 
+        # Sort based on lowest time for each pair
+        # O((B+depot)^2*log(B+depot))
         min_depot_bike_stations = dict(
             sorted(stp.items(), key=lambda kv: kv[1][1]))
         for k, v in min_depot_bike_stations.items():
-            min_depot_bike_stations[k] = v + [
-                self.bike_data['bike_data'][int(k[1].replace('b', '')) - 1][1]]
+            if k[1] != main_source:
+                min_depot_bike_stations[k] = v + [
+                    self.bike_data['bike_data'][int(k[1].replace('b', '')) - 1][1]]
+            else:
+                min_depot_bike_stations[k] = v + [0]
 
         # choose the min or choose randomly
         above_thresh_b = dict(
@@ -50,10 +61,12 @@ class GreedyTraversal:
 
             # for each vehicle, fill bikes until max cap
             # start from the closest to depot, then closest to bike station
-            for v in above_thresh_b.values():
+            while vehicles[f'v{idx}'][1] < max_station_bikes:
+            # for v in above_thresh_b.values():
                 if v[-1] > min_station_bikes and vehicles[f'v{idx}'][
                     1] < max_station_bikes:
-                    source_to_v = self.graph.shortestPath(source, v[0][-1]) + \
+                    # find the shortest node from source to the remaining stations
+                    source_to_v = stp[(source, v[0][-1])] + \
                                   [self.bike_data['bike_data'][
                                        int(v[0][-1].replace('b', '')) - 1][1]]
                     vehicles[f'v{idx}'].append(source_to_v)
@@ -69,13 +82,17 @@ class GreedyTraversal:
                     source = v[0][-1]
                     num_stations_visited += 1
 
+                # vehicle has reached max capacity, moving on to other deficit stations
+                if vehicles[f'v{idx}'][1] == max_station_bikes:
+                    break
+
             # once vehicle reached full capacity, go fill bikes
             num_stations_satisfied = 0
             for v in below_thresh_b.values():
                 if source != v[0][-1] and v[-1] < min_station_bikes and \
                         vehicles[f'v{idx}'][1] > 0:
-                    source_to_v = self.graph.shortestPath(source, v[0][-1])
-                    v_to_main = self.graph.shortestPath(v[0][-1], main_source)
+                    source_to_v = stp[(source, v[0][-1])]
+                    v_to_main = stp[(v[0][-1], main_source)]
 
                     # get shortest path from u->v, v->depot
                     # choose u->depot if not enough time

@@ -7,6 +7,10 @@ class Graph:
         self.weights = defaultdict(set)
         self.directed = directed
 
+    def remove(self, pair):
+        self.graph[pair[0]].remove(pair[1])
+        del self.weights[pair]
+
     def add(self, node1, node2):
         """ Add connection between node1 and node2 vice-versa """
         self.graph[node1].add(node2)
@@ -67,6 +71,16 @@ class Graph:
                     dist[i] = alt
                     prev[i] = u
         return (dist, prev)
+
+    def getShortestPath(self, dist, prev, target):
+        d, p = dist, prev
+        s = []
+        u = target
+        while p[u]:
+            s = [u] + s
+            u = p[u]
+        s = [u] + s
+        return [s, d[s[-1]]]
 
     def shortestPath(self, source, target):
         d, p = self.dijkstras(source)

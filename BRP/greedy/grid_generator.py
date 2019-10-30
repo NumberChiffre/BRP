@@ -150,6 +150,7 @@ class GridGenerator(Generator):
         self.bike_data['edges'] = edges
         self.bike_data['vertices'] = vertices
         self.edges = edges
+        self.vertices = vertices
         self.graph = Graph()
         self.graph.add_weighted(connections=edges)
         self._generate_topology_data()
@@ -166,7 +167,7 @@ class GridGenerator(Generator):
         with open(filename, 'w') as f:
             directed_graph = Graph(directed=True)
             directed_graph.add_weighted(connections=self.edges)
-            f.write(f'{num_vertices} {num_edges}\n')
+            f.write(f"{len(self.vertices)} {len(self.edges)}\n")
             f.write(f'{num_bike_stations_2}\n')
             f.write(f"{','.join(self.bike_stations).replace(',', ' ')}\n")
             f.write(f'{len(directed_graph.graph)}\n')
