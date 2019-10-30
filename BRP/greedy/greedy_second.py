@@ -87,20 +87,14 @@ class GreedyTraversalSecond:
 
                 if v[-1] > min_station_bikes:
                     # find the shortest node from source to the remaining stations
-                    source_to_v = min_depot_bike_stations[(source, v[0][-1])] + \
-                                  [self.bike_data['bike_data'][
-                                       int(v[0][-1].replace('b', '')) - 1][1]]
+                    source_to_v = min_depot_bike_stations[(source, v[0][-1])]
                     vehicles[f'v{idx}'].append(source_to_v)
 
                     # fill vehicle with bikes to satisfy remaining deficit stations
                     bikes = min(v[-1] - min_station_bikes,
                                 max_station_bikes - vehicles[f'v{idx}'][1])
                     vehicles[f'v{idx}'][1] += bikes
-                    # min_depot_bike_stations[(source, v[0][-1])][-1] -= bikes
                     above_thresh_b[(main_source, v[0][-1])][-1] -= bikes
-                    # if above_thresh_b[(main_source, v[0][-1])][
-                    #     -2] == min_station_bikes:
-                    #     above_thresh_b[(main_source, v[0][-1])][-1] = True
 
                     # path weights
                     vehicles[f'v{idx}'][0] += source_to_v[1]
@@ -136,9 +130,6 @@ class GreedyTraversalSecond:
                     # choose u->depot if not enough time
                     if source_to_v[1] + v_to_main[1] <= vehicle_shift - \
                             vehicles[f'v{idx}'][0]:
-                        # source_to_v += [self.bike_data['bike_data'][
-                        #                     int(v[0][-1].replace('b', '')) - 1][
-                        #                     1]]
                         vehicles[f'v{idx}'].append(source_to_v)
 
                         # fill deficit stations with bikes
@@ -149,8 +140,6 @@ class GreedyTraversalSecond:
                             -2] > min_station_bikes:
                             bikes
                         vehicles[f'v{idx}'][1] -= bikes
-                        # min_depot_bike_stations[(main_source, v[0][-1])][
-                        #     -1] += bikes
                         below_thresh_b[(main_source, v[0][-1])][-2] += bikes
                         if below_thresh_b[(main_source, v[0][-1])][
                             -2] >= min_station_bikes:
@@ -163,13 +152,6 @@ class GreedyTraversalSecond:
                         vehicles[f'v{idx}'][0] += source_to_v[1]
                         source = v[0][-1]
                         num_stations_visited += 1
-
-                        troll = dict(
-                            [(k, v) for k, v in below_thresh_b.items() if
-                             v[-1] >= min_station_bikes])
-                        if sum([1 for k, v in troll.items() if
-                                v[-1] > min_station_bikes]):
-                            troll
                     else:
                         break
 
