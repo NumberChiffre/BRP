@@ -92,18 +92,18 @@ class Graph:
         s = [u] + s
         return [s, d[s[-1]]]
 
-    def is_connected(self, vertices_encountered = None, start_vertex=None):
-        if vertices_encountered is None:
-            vertices_encountered = set()
-        gdict = self.graph
-        vertices = list(gdict.keys())
-        if not start_vertex:
-            start_vertex = vertices[0]
-        vertices_encountered.add(start_vertex)
-        if len(vertices_encountered) != len(vertices):
-            for vertex in gdict[start_vertex]:
-                if vertex not in vertices_encountered:
-                    if self.is_connected(vertices_encountered, vertex):
+    def is_connected(self, visited = None, vertex=None):
+        if visited is None:
+            visited = set()
+        graph_d = self.graph
+        vertices = list(graph_d.keys())
+        if not vertex:
+            vertex = vertices[0]
+        visited.add(vertex)
+        if len(visited) != len(vertices):
+            for v in graph_d[vertex]:
+                if v not in visited:
+                    if self.is_connected(visited, v):
                         return True
         else:
             return True

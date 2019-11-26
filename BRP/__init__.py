@@ -28,3 +28,8 @@ num_bike_stations_2 = 90 #90
 single_arc_prop = 0.4
 deficit_prop = 0.5
 
+# params given for part III
+max_station_bikes = 12
+vehicle_cap = 10
+num_deficit_bikes = int(0.25 * max_station_bikes) #3
+num_excess_bikes = int(0.75 * max_station_bikes) #9

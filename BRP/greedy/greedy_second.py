@@ -1,12 +1,12 @@
 from BRP import *
+from BRP.greedy.greedy import Greedy
 import BRP
 import copy
 
 
-class GreedyTraversalSecond:
+class GreedyTraversalSecond(Greedy):
     def __init__(self, graph, bike_data):
-        self.graph = graph
-        self.bike_data = bike_data
+        super().__init__(graph, bike_data)
 
     # generate shortest path for every pair of vertices
     # to have shortest path between points -> check for transitivity
